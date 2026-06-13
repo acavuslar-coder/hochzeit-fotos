@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Olga &amp; Ahmet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Jost:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #f5f0e8;
+      min-height: 100vh;
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .page {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 2.5rem 0;
+    }
+    .lav {
+      position: absolute;
+      top: 0;
+      opacity: 0.18;
+      width: 110px;
+      pointer-events: none;
+    }
+    .lav-l { left: 0; }
+    .lav-r { right: 0; transform: scaleX(-1); }
+    .inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 420px;
+      padding: 0 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+    .names {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 2.8rem;
+      letter-spacing: 0.18em;
+      color: #2d5a27;
+      text-align: center;
+      line-height: 1.1;
+    }
+    .und {
+      font-size: 0.82rem;
+      letter-spacing: 0.25em;
+      color: #7a6e5a;
+      margin: 0.15rem 0;
+    }
+    .date-line {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 0.6rem 0 1.6rem;
+      color: #7a6e5a;
+      font-size: 0.78rem;
+      letter-spacing: 0.2em;
+    }
+    .date-line span { display: inline-block; width: 26px; height: 0.5px; background: #7a6e5a; }
+    .tagline {
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      color: #7a6e5a;
+      text-align: center;
+      margin-bottom: 1.6rem;
+      line-height: 1.9;
+    }
+    .upload-box {
+      background: rgba(255,255,255,0.55);
+      border: 0.5px solid #c8bfa8;
+      border-radius: 4px;
+      padding: 1.8rem 2rem;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+    .drop-zone {
+      width: 100%;
+      border: 1px dashed #b0a48c;
+      border-radius: 4px;
+      padding: 1.8rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      background: rgba(255,255,255,0.4);
+      transition: background 0.2s;
+    }
+    .drop-zone:hover { background: rgba(255,255,255,0.75); }
+    .drop-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .drop-text-de { font-size: 0.78rem; color: #5c5244; letter-spacing: 0.08em; margin-bottom: 0.2rem; }
+    .drop-text-tr { font-size: 0.7rem; color: #9a8e7a; letter-spacing: 0.06em; }
+    #fileInput { display: none; }
+    .file-preview { display: none; flex-direction: column; align-items: center; gap: 0.4rem; width: 100%; }
+    .file-preview.visible { display: flex; }
+    .preview-img { max-width: 100%; max-height: 160px; border-radius: 4px; object-fit: cover; border: 0.5px solid #c8bfa8; }
+    .file-name { font-size: 0.7rem; color: #7a6e5a; }
+    .btn-upload {
+      background: #2d5a27; color: #f5f0e8; border: none;
+      padding: 0.72rem 2rem; width: 100%;
+      font-family: 'Jost', sans-serif; font-weight: 300;
+      font-size: 0.76rem; letter-spacing: 0.22em;
+      cursor: pointer; border-radius: 2px;
+    }
+    .btn-upload:hover { background: #1e3e1a; }
+    .btn-upload:disabled { background: #a0b89e; cursor: default; }
+    .btn-another {
+      display: none; background: transparent; color: #2d5a27;
+      border: 0.5px solid #2d5a27; padding: 0.5rem 1.5rem; width: 100%;
+      font-family: 'Jost', sans-serif; font-weight: 300;
+      font-size: 0.7rem; letter-spacing: 0.16em; cursor: pointer; border-radius: 2px;
+    }
+    .progress-bar-wrap { display: none; width: 100%; height: 2px; background: #d8cebc; border-radius: 2px; }
+    .progress-bar { height: 100%; background: #2d5a27; border-radius: 2px; width: 0%; transition: width 0.3s; }
+    .status { font-size: 0.7rem; letter-spacing: 0.1em; text-align: center; min-height: 1.1rem; color: #7a6e5a; }
+    .status.success { color: #2d5a27; }
+    .status.error { color: #a33; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <svg class="lav lav-l" viewBox="0 0 120 400" xmlns="http://www.w3.org/2000/svg">
+    <g fill="#2d5a27">
+      <ellipse cx="60" cy="385" rx="6" ry="18"/>
+      <line x1="60" y1="365" x2="60" y2="20" stroke="#2d5a27" stroke-width="1.5"/>
+      <ellipse cx="42" cy="310" rx="5" ry="15" transform="rotate(-22 42 310)"/>
+      <ellipse cx="78" cy="290" rx="5" ry="15" transform="rotate(22 78 290)"/>
+      <ellipse cx="38" cy="248" rx="4.5" ry="13" transform="rotate(-26 38 248)"/>
+      <ellipse cx="80" cy="230" rx="4.5" ry="13" transform="rotate(26 80 230)"/>
+      <ellipse cx="40" cy="190" rx="4" ry="11" transform="rotate(-20 40 190)"/>
+      <ellipse cx="78" cy="175" rx="4" ry="11" transform="rotate(20 78 175)"/>
+      <ellipse cx="44" cy="140" rx="3.5" ry="10" transform="rotate(-18 44 140)"/>
+      <ellipse cx="75" cy="128" rx="3.5" ry="10" transform="rotate(18 75 128)"/>
+      <ellipse cx="52" cy="95" rx="3" ry="8" transform="rotate(-12 52 95)"/>
+      <ellipse cx="70" cy="84" rx="3" ry="8" transform="rotate(12 70 84)"/>
+      <ellipse cx="58" cy="58" rx="2.5" ry="7"/>
+      <ellipse cx="64" cy="40" rx="2" ry="6" transform="rotate(8 64 40)"/>
+    </g>
+  </svg>
+
+  <svg class="lav lav-r" viewBox="0 0 120 400" xmlns="http://www.w3.org/2000/svg">
+    <g fill="#2d5a27">
+      <ellipse cx="60" cy="385" rx="6" ry="18"/>
+      <line x1="60" y1="365" x2="60" y2="20" stroke="#2d5a27" stroke-width="1.5"/>
+      <ellipse cx="42" cy="310" rx="5" ry="15" transform="rotate(-22 42 310)"/>
+      <ellipse cx="78" cy="290" rx="5" ry="15" transform="rotate(22 78 290)"/>
+      <ellipse cx="38" cy="248" rx="4.5" ry="13" transform="rotate(-26 38 248)"/>
+      <ellipse cx="80" cy="230" rx="4.5" ry="13" transform="rotate(26 80 230)"/>
+      <ellipse cx="40" cy="190" rx="4" ry="11" transform="rotate(-20 40 190)"/>
+      <ellipse cx="78" cy="175" rx="4" ry="11" transform="rotate(20 78 175)"/>
+      <ellipse cx="44" cy="140" rx="3.5" ry="10" transform="rotate(-18 44 140)"/>
+      <ellipse cx="75" cy="128" rx="3.5" ry="10" transform="rotate(18 75 128)"/>
+      <ellipse cx="52" cy="95" rx="3" ry="8" transform="rotate(-12 52 95)"/>
+      <ellipse cx="70" cy="84" rx="3" ry="8" transform="rotate(12 70 84)"/>
+      <ellipse cx="58" cy="58" rx="2.5" ry="7"/>
+      <ellipse cx="64" cy="40" rx="2" ry="6" transform="rotate(8 64 40)"/>
+    </g>
+  </svg>
+
+  <div class="inner">
+    <div class="names">OLGA</div>
+    <div class="und">und</div>
+    <div class="names">AHMET</div>
+    <div class="date-line"><span></span>04 / 07 / 26<span></span></div>
+
+    <div class="tagline">
+      Teilt eure sch&ouml;nsten Momente mit uns<br>
+      En g&uuml;zel anlar&#305;n&#305;z&#305; bizimle payla&#351;&#305;n
+    </div>
+
+    <div class="upload-box">
+      <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+        <div class="drop-icon">&#128247;</div>
+        <div class="drop-text-de">Foto ausw&auml;hlen oder hier ablegen</div>
+        <div class="drop-text-tr">Foto&#287;raf se&ccedil; veya buraya b&#305;rak</div>
+      </div>
+      <input type="file" id="fileInput" accept="image/*">
+      <div class="file-preview" id="filePreview">
+        <img class="preview-img" id="previewImg" src="" alt="Vorschau">
+        <div class="file-name" id="fileName"></div>
+      </div>
+      <div class="progress-bar-wrap" id="progressWrap">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <button class="btn-upload" id="btnUpload" disabled onclick="startUpload()">HOCHLADEN &middot; Y&Uuml;KLE</button>
+      <button class="btn-another" id="btnAnother" onclick="resetForm()">+ weiteres Foto &middot; ba&#351;ka foto&#287;raf</button>
+      <div class="status" id="status"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var CLOUD_NAME = 'dwtpzslpp';
+  var UPLOAD_PRESET = 'hochzeit_upload';
+  var selectedFile = null;
+
+  var fileInput = document.getElementById('fileInput');
+  var dropZone = document.getElementById('dropZone');
+  var filePreview = document.getElementById('filePreview');
+  var previewImg = document.getElementById('previewImg');
+  var fileName = document.getElementById('fileName');
+  var btnUpload = document.getElementById('btnUpload');
+  var btnAnother = document.getElementById('btnAnother');
+  var statusEl = document.getElementById('status');
+  var progressWrap = document.getElementById('progressWrap');
+  var progressBar = document.getElementById('progressBar');
+
+  fileInput.addEventListener('change', function(e) {
+    if (e.target.files[0]) showPreview(e.target.files[0]);
+  });
+  dropZone.addEventListener('dragover', function(e) { e.preventDefault(); });
+  dropZone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    if (e.dataTransfer.files[0]) showPreview(e.dataTransfer.files[0]);
+  });
+
+  function showPreview(file) {
+    selectedFile = file;
+    previewImg.src = URL.createObjectURL(file);
+    fileName.textContent = file.name;
+    filePreview.classList.add('visible');
+    dropZone.style.display = 'none';
+    btnUpload.disabled = false;
+    btnAnother.style.display = 'none';
+    statusEl.textContent = '';
+    statusEl.className = 'status';
+    progressWrap.style.display = 'none';
+    progressBar.style.width = '0%';
+  }
+
+  function resetForm() {
+    selectedFile = null;
+    fileInput.value = '';
+    previewImg.src = '';
+    filePreview.classList.remove('visible');
+    dropZone.style.display = '';
+    btnUpload.disabled = true;
+    btnAnother.style.display = 'none';
+    statusEl.textContent = '';
+    statusEl.className = 'status';
+    progressWrap.style.display = 'none';
+    progressBar.style.width = '0%';
+  }
+
+  function startUpload() {
+    if (!selectedFile) return;
+    btnUpload.disabled = true;
+    progressWrap.style.display = 'block';
+    progressBar.style.width = '10%';
+    statusEl.textContent = 'Wird hochgeladen... / Yukleniyor...';
+
+    var formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('upload_preset', UPLOAD_PRESET);
+    formData.append('folder', 'hochzeit_olga_ahmet');
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/image/upload');
+    xhr.upload.onprogress = function(e) {
+      if (e.lengthComputable) progressBar.style.width = (Math.round(e.loaded/e.total*85)+10) + '%';
+    };
+    xhr.onload = function() {
+      progressBar.style.width = '100%';
+      if (xhr.status === 200) {
+        statusEl.className = 'status success';
+        statusEl.textContent = 'Vielen Dank! Schoen, dass ihr dabei seid!';
+        btnAnother.style.display = 'block';
+      } else {
+        statusEl.className = 'status error';
+        statusEl.textContent = 'Fehler beim Hochladen / Yukleme hatasi';
+        btnUpload.disabled = false;
+      }
+    };
+    xhr.onerror = function() {
+      statusEl.className = 'status error';
+      statusEl.textContent = 'Verbindungsfehler / Baglanti hatasi';
+      btnUpload.disabled = false;
+    };
+    xhr.send(formData);
+  }
+</script>
+</body>
+</html>
